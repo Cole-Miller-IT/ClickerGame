@@ -16,6 +16,7 @@ try:
     from pygame.math import Vector2
     import os
     import sys
+    from Entity import Entity, Enemy
 except ImportError as error:
     print("Couldn't load module.")
     print(error)
@@ -31,6 +32,7 @@ class GameLoop:
 
         #Colors
         self.black = (0, 0, 0)
+        self.white = (255, 255, 255)
 
         #Window
         self.worldSize = Vector2(10,10)
@@ -47,10 +49,11 @@ class GameLoop:
         # Creates a Clock class
         self.clock = pygame.time.Clock()
 
-    def processInput(self):
-        # Reset values
-        self.playerMoveCommand = Vector2(0, 0)
+        #Testing-----------------------------------------------------
+        p1 = Entity(self.cellSize)
+        p2 = Enemy(self.cellSize, (5, 5))
 
+    def processInput(self):
         # Event Checker
         for event in pygame.event.get():
             # If the user has clicked on the 'X' box, close the game
@@ -68,6 +71,8 @@ class GameLoop:
     def render(self):
         # Reset background
         self.window.fill(self.black)
+
+        #Draw Enemies
 
         # Update Display screen
         pygame.display.update()
