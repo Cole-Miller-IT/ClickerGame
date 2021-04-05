@@ -62,4 +62,4 @@ class Player(Entity):
 
     def update(self):
         self.score = self.score + 1
-        print(self.score)
+        #print(self.score)

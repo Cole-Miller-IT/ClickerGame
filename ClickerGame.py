@@ -1,7 +1,7 @@
 ''' 
 Project: Clicker game
 Author: Cole Miller
-Date: 2021-04-01
+Date: 2021-04-01 - 2021-04-04
 
 #Commands to help configure VS Code with Python using a virtual environment
 py -m venv venv  #Creates a folder for the virtual envirmont 
@@ -25,11 +25,13 @@ except ImportError as error:
 #Center game window
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
+#Main class that contains the parts of the game loop in different methods
 class GameLoop:
     def __init__(self):
-        self.running = True
-        self.FPS = 60
+        self.running = True     #Gameloop condition for running
+        self.FPS = 60           #Game FPS
         
+        #Lists all current fonts 
         '''fonts = pygame.font.get_fonts()
         print(len(fonts))
         for f in fonts:
@@ -39,6 +41,9 @@ class GameLoop:
         self.black = (0, 0, 0)
         self.white = (255, 255, 255)
         self.red = (255, 0, 0)
+        self.green = (0, 255, 0)
+        self.blue = (0, 0, 255)
+        self.gray = (200, 200, 200)
 
         #Window
         self.worldSize = Vector2(10,10)
@@ -46,7 +51,6 @@ class GameLoop:
         self.windowSize = self.worldSize.elementwise() * self.cellSize  # ie. A board of 10 x 10 tiles multiplied by the cellSize
         self.window = pygame.display.set_mode((int(self.windowSize.x), int(self.windowSize.y)))
         self.windowCaption = 'Clicker Game'
-        #print(self.windowSize)
 
         #Init the pygame
         pygame.init()
@@ -65,7 +69,7 @@ class GameLoop:
         #Enemies
         self.enemiesList = []
         self.enemiesListCopy = []
-        self.maxEnemies = 2
+        self.maxEnemies = 4
 
     def processInput(self):
         # Event Checker
@@ -78,7 +82,7 @@ class GameLoop:
                 pass
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 self.player1.processInput()  #Store the mouse click position
-                print(self.player1.clickPos)
+                #print(self.player1.clickPos)
                 
             else:
                 pass
@@ -119,8 +123,10 @@ class GameLoop:
             Enemy.render(self.window, self.red)
 
         #Draw font/text
-        self.fontSurface = self.font.render("Score: " + str(self.player1.score), True, self.white)
+        self.fontSurface = self.font.render("FPS: " + str(self.clock), True, self.white)
         self.window.blit(self.fontSurface, (20, 20))
+        self.fontSurface = self.font.render("Score: " + str(self.player1.score), True, self.white)
+        self.window.blit(self.fontSurface, (20, 40))
 
         # Update Display screen
         pygame.display.update()
@@ -133,7 +139,7 @@ class GameLoop:
             self.render()
 
             # Set the game FPS
-            self.clock.tick(self.FPS)    
+            self.clock.tick(self.FPS)   
 
 # Main Game Loop
 game = GameLoop()
