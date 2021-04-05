@@ -33,6 +33,8 @@ class Enemy(Entity):
         self.pos = Vector2(self.spawnPos).elementwise() * self.cellSize
         self.surf.fill((100, 0, 0))
 
+        self.rectangle = pygame.Rect(self.pos.x, self.pos.y, self.cellSize.x, self.cellSize.y)
+        
     #Moves the enemy
     def update(self):
         #self.pos.update(self.pos.x, self.pos.y + self.moveSpeed)
@@ -40,8 +42,8 @@ class Enemy(Entity):
 
     #Draw the enemy to a surface (ie. window)
     def render(self, window, color):
-        Rectangle = pygame.Rect(self.pos.x, self.pos.y, self.cellSize.x, self.cellSize.y)
-        pygame.draw.rect(window, color, Rectangle)
+        self.rectangle = pygame.Rect(self.pos.x, self.pos.y, self.cellSize.x, self.cellSize.y)
+        pygame.draw.rect(window, color, self.rectangle)
 
     def debug(self):
         print(self.pos)

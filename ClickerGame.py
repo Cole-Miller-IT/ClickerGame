@@ -70,7 +70,7 @@ class GameLoop:
                 pass
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 self.player1.processInput()  #Store the mouse click position
-                print(self.player1.clickPos.x)
+                print(self.player1.clickPos)
                 
             else:
                 pass
@@ -87,14 +87,20 @@ class GameLoop:
             #If the enemy is out of the world bounds delete it, else move it
             if enemy.pos.x >= (self.windowSize.x - self.cellSize.x) or enemy.pos.y >= (self.windowSize.y - self.cellSize.y):
                 self.enemiesList.remove(enemy)  #Deletes the enemy
-                #print(enemy.pos.x)
 
-            #If the player clicks on a enemy delete it, add to the player's score, and reset clickPos
-            elif self.player1.clickPos.x > enemy.pos.x:
-                self.player1.update()
+            #Check if the player has clicked
+            elif self.player1.clickPos != Vector2(0, 0):
+                collide = enemy.rectangle.collidepoint(self.player1.clickPos)  #Determines if a collision has happened
+                
+                #If a collision has occured update player and enemy
+                if collide:
+                    self.player1.update()
+                    self.enemiesList.remove(enemy)
 
             else:
                 enemy.update()     #Moves the enemy
+            
+        self.player1.clickPos = Vector2(0, 0)  #Reset value
 
     def render(self):
         # Reset background
