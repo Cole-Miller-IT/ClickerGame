@@ -29,6 +29,11 @@ class GameLoop:
     def __init__(self):
         self.running = True
         self.FPS = 60
+        
+        '''fonts = pygame.font.get_fonts()
+        print(len(fonts))
+        for f in fonts:
+            print(f)'''
 
         #Colors
         self.black = (0, 0, 0)
@@ -38,15 +43,21 @@ class GameLoop:
         #Window
         self.worldSize = Vector2(10,10)
         self.cellSize = Vector2(64,64)
-
         self.windowSize = self.worldSize.elementwise() * self.cellSize  # ie. A board of 10 x 10 tiles multiplied by the cellSize
         self.window = pygame.display.set_mode((int(self.windowSize.x), int(self.windowSize.y)))
         self.windowCaption = 'Clicker Game'
-        print(self.windowSize)
+        #print(self.windowSize)
 
         #Init the pygame
         pygame.init()
         pygame.display.set_caption(self.windowCaption)
+
+        #Player
+        self.player1 = Player(self.cellSize, self.worldSize)
+
+        #Font
+        self.fontSize = 24
+        self.font = pygame.font.SysFont('rubik', self.fontSize)
 
         # Creates a Clock class
         self.clock = pygame.time.Clock()
@@ -55,9 +66,6 @@ class GameLoop:
         self.enemiesList = []
         self.enemiesListCopy = []
         self.maxEnemies = 2
-
-        #Player
-        self.player1 = Player(self.cellSize, self.worldSize)
 
     def processInput(self):
         # Event Checker
@@ -109,6 +117,10 @@ class GameLoop:
         #Draw Enemies 
         for Enemy in self.enemiesList:
             Enemy.render(self.window, self.red)
+
+        #Draw font/text
+        self.fontSurface = self.font.render("Score: " + str(self.player1.score), True, self.white)
+        self.window.blit(self.fontSurface, (20, 20))
 
         # Update Display screen
         pygame.display.update()
