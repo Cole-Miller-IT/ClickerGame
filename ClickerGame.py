@@ -17,6 +17,7 @@ try:
     import os
     import sys
     from Entity import Entity, Enemy, Player
+    from GameModes import GameMode
 except ImportError as error:
     print("Couldn't load module.")
     print(error)
@@ -123,7 +124,7 @@ class GameLoop:
             Enemy.render(self.window, self.red)
 
         #Draw font/text
-        self.fontSurface = self.font.render("FPS: " + str(self.clock), True, self.white)
+        self.fontSurface = self.font.render("FPS: " + str(int(self.clock.get_fps())), True, self.white)  #Convert clock from a float to a int to round off decimal points
         self.window.blit(self.fontSurface, (20, 20))
         self.fontSurface = self.font.render("Score: " + str(self.player1.score), True, self.white)
         self.window.blit(self.fontSurface, (20, 40))
