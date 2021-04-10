@@ -16,8 +16,10 @@ try:
     from pygame.math import Vector2
     import os
     import sys
+
+    #My modules
     from Entity import Entity, Enemy, Player
-    from GameModes import GameMode
+    from GameModes import MenuGameMode, PlayGameMode, MessageGameMode
 except ImportError as error:
     print("Couldn't load module.")
     print(error)
