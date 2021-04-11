@@ -26,15 +26,15 @@ class MenuGameMode(GameMode):
         self.menuItems = [
             {
                 'menuItemName': 'Tutorial Instructions',
-                'action': 1#lambda: load level
+                'action': lambda: self.ui.showMessage()
             },
             {
                 'menuItemName': 'Level 1',
-                'action': 2#lambda: throw error no level 2 created
+                'action': lambda: self.ui.loadLevel()
             },
             {
-                'menuItemName': 'Quit', #Quit must be the last item in the menuItems list
-                'action': 3#lambda: Quit game
+                'menuItemName': 'Quit', 
+                'action': lambda: self.ui.quitGame()
             }
         ]
 
@@ -56,10 +56,14 @@ class MenuGameMode(GameMode):
                     if self.currentMenuItem < (len(self.menuItems) - 1):
                         self.currentMenuItem += 1
                 elif event.key == pygame.K_RETURN:
-                    #If the user selects the last menuItem quit the game, this should say "Quit"
-                    if self.currentMenuItem == (len(self.menuItems) - 1):
-                        #Exit the loop
-                        self.ui.quitGame()
+                    #Gets the current menuitems action
+                    menuItem = self.menuItems[self.currentMenuItem]
+                    try:
+                        #Execute the current menuitems Action lambda function
+                        menuItem['action']() 
+                    except Error as er:
+                        print(er)
+
 
     def update(self):
         pass
@@ -105,137 +109,40 @@ class MenuGameMode(GameMode):
 
 #---------------------------------------------------------------------------------------
 class PlayGameMode(GameMode):
-    def __init__(self):
-
-        pygame.init()
-
-        #Window
-        self.worldSize = Vector2(10,10)
-        self.cellSize = Vector2(64,64)
-        self.windowSize = self.worldSize.elementwise() * self.cellSize  # ie. A board of 10 x 10 tiles multiplied by the cellSize
-        self.window = pygame.display.set_mode((int(self.windowSize.x), int(self.windowSize.y)))
-        self.windowCaption = 'Clicker Game'
-        
-        #Font
-        self.fontSize = 24
-        self.font = pygame.font.SysFont('rubik', self.fontSize)
-        
-        #Create a list, each item of the list is a dict[] of all levels and a quit option
-        self.menuItems = [
-            {
-                'title': 'Level 1',
-                'action': 1#lambda: load level
-            },
-            {
-                'title': 'Level 2',
-                'action': 2#lambda: throw error no level 2 created
-            },
-            {
-                'title': 'Quit',
-                'action': 3#lambda: Quit game
-            }
-        ]
-
-        self.currentMenuItem = 0
-        self.clock = pygame.time.Clock()
-        self.running = True
+    def __init__(self, UI):
+        self.ui = UI
+ 
 
     def processInput(self):
-        #Event handling 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                #Exit the menu
-                print("quit")
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:
-                    if self.currentMenuItem > 0:
-                        self.currentMenuItem -= 1
-                elif event.key == pygame.K_s:
-                    if self.currentMenuItem < len(self.menuItems):
-                        self.currentMenuItem += 1
-                elif event.type == pygame.K_RETURN:
-                    try:
-                        #Action
-                        print("enter works")
-                    except error as er:
-                        print(er)
+        pass
 
     def update(self):
-        x = 1
+        pass
         
     def render(self):
-        self.window.fill((0, 0, 0))
-        
-        #Title
-        surfaceTitle = self.font.render("title", True, (0, 255, 255))
-        self.window.blit(surfaceTitle, (25, 25))
-
-        pygame.display.update()
+        pass
 
 class MessageGameMode(GameMode):
-    def __init__(self):
-        #Init Pygame
-        pygame.init()
+    def __init__(self, UI):
+        self.ui = UI
 
-        #Window
-        self.worldSize = Vector2(10,10)
-        self.cellSize = Vector2(64,64)
-        self.windowSize = self.worldSize.elementwise() * self.cellSize  # ie. A board of 10 x 10 tiles multiplied by the cellSize
-        self.window = pygame.display.set_mode((int(self.windowSize.x), int(self.windowSize.y)))
-        self.windowCaption = 'Clicker Game'
-        
-        #Font
         self.fontSize = 24
         self.font = pygame.font.SysFont('rubik', self.fontSize)
-        
-        #Create a list, each item of the list is a dict[] of all levels and a quit option
-        self.menuItems = [
-            {
-                'title': 'Level 1',
-                'action': 1#lambda: load level
-            },
-            {
-                'title': 'Level 2',
-                'action': 2#lambda: throw error no level 2 created
-            },
-            {
-                'title': 'Quit',
-                'action': 3#lambda: Quit game
-            }
-        ]
-
-        self.currentMenuItem = 0
-        self.clock = pygame.time.Clock()
-        self.running = True
-
+        self.message = "Message Game mode"
+     
     def processInput(self):
         #Event handling 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                #Exit the menu
-                print("quit")
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:
-                    if self.currentMenuItem > 0:
-                        self.currentMenuItem -= 1
-                elif event.key == pygame.K_s:
-                    if self.currentMenuItem < len(self.menuItems):
-                        self.currentMenuItem += 1
-                elif event.type == pygame.K_RETURN:
-                    try:
-                        #Action
-                        print("enter works")
-                    except error as er:
-                        print(er)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE \
+                or event.key == pygame.K_RETURN:
+                    #Return to the menu
+                    self.ui.showMenu()
+
 
     def update(self):
-        x = 1
+        pass
         
     def render(self):
-        self.window.fill((0, 0, 0))
-        
-        #Title
-        surfaceTitle = self.font.render("title", True, (255, 0, 255))
-        self.window.blit(surfaceTitle, (25, 25))
-
-        pygame.display.update()
+        surface = self.font.render(self.message, True, (255, 0, 0))
+        self.ui.window.blit(surface, (200, 200))

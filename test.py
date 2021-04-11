@@ -1,3 +1,13 @@
+''' 
+Project: Clicker game
+Author: Cole Miller
+Date: April, 2021
+
+#Commands to help configure VS Code with Python using a virtual environment
+py -m venv venv  #Creates a folder for the virtual envirmont 
+"terminal.integrated.shellArgs.windows": ["-ExecutionPolicy", "Bypass"]  #Used to allow Powershell to run these scripts
+py -m pip install pygame  #Install the pygame module
+'''
 
 #Import Modules
 try:
@@ -39,7 +49,18 @@ class UserInterface():
 
     def debug(self):
         pass
+
+    def loadLevel(self):
+        print("load level")
+
+    def showMessage(self):
+        self.overlayGameMode = MessageGameMode(UI)
+        self.activeGameMode = 'Overlay'
     
+    def showMenu(self):
+        self.overlayGameMode = MenuGameMode(UI)
+        self.activeGameMode = 'Overlay'
+
     def quitGame(self):
         self.running = False
 
