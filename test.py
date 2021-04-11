@@ -1,7 +1,7 @@
 ''' 
 Project: Clicker game
 Author: Cole Miller
-Date: April, 2021
+Date: March, 2021 - April, 2021
 
 #Commands to help configure VS Code with Python using a virtual environment
 py -m venv venv  #Creates a folder for the virtual envirmont 
@@ -31,7 +31,16 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 #Main game class
 class UserInterface():
     def __init__(self):
+        #Condition for main game loop
         self.running = True
+
+        #Colors
+        self.black = (0, 0, 0)
+        self.white = (255, 255, 255)
+        self.red = (255, 0, 0)
+        self.green = (0, 255, 0)
+        self.blue = (0, 0, 255)
+        self.gray = (200, 200, 200)
 
         #Init Pygame
         pygame.init()
@@ -42,6 +51,7 @@ class UserInterface():
         self.windowSize = self.worldSize.elementwise() * self.cellSize  # ie. A board of 10 x 10 tiles multiplied by the cellSize
         self.window = pygame.display.set_mode((int(self.windowSize.x), int(self.windowSize.y)))
         self.windowCaption = 'Clicker Game'
+        pygame.display.set_caption(self.windowCaption)
 
         #FPS
         self.clock = pygame.time.Clock()
@@ -50,8 +60,11 @@ class UserInterface():
     def debug(self):
         pass
 
-    def loadLevel(self):
-        print("load level")
+    def showLevel(self):
+        if self.currentGameMode is None:
+            self.currentGameMode = PlayGameMode(UI)
+            self.overlayGameMode = None
+            self.activeGameMode = 'Play'
 
     def showMessage(self):
         self.overlayGameMode = MessageGameMode(UI)
@@ -65,8 +78,8 @@ class UserInterface():
         self.running = False
 
     def run(self, UI):
-        #Game mode
-        self.currentGameMode = None #Set default gamemode to the menu
+        #Set default gamemode to the menu
+        self.currentGameMode = None 
         self.overlayGameMode = MenuGameMode(UI)
         self.activeGameMode = 'Overlay'
 
@@ -87,19 +100,21 @@ class UserInterface():
                     self.currentGameMode = None
 
             #Render 
+            #Draw a black screen
+            self.window.fill((0, 0, 0))
+
+            #Render the play game mode if set
             if self.currentGameMode is not None:
                 self.currentGameMode.render()
-            else:
-                #Draw a black screen
-                self.window.fill((0, 0, 0))
             
+            #Render the Overlay if it is active
             if self.activeGameMode == 'Overlay':
                 darkSurface = pygame.Surface(self.window.get_size(),flags=pygame.SRCALPHA)
                 pygame.draw.rect(darkSurface, (0,0,0,150), darkSurface.get_rect())
                 self.window.blit(darkSurface, (0,0))
                 self.overlayGameMode.render()
 
-
+            #Draw graphics to the screen
             pygame.display.update()
             self.clock.tick(self.FPS)
 

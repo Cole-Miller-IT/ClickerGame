@@ -30,7 +30,7 @@ class MenuGameMode(GameMode):
             },
             {
                 'menuItemName': 'Level 1',
-                'action': lambda: self.ui.loadLevel()
+                'action': lambda: self.ui.showLevel()
             },
             {
                 'menuItemName': 'Quit', 
@@ -39,6 +39,7 @@ class MenuGameMode(GameMode):
         ]
 
         self.currentMenuItem = 0
+        self.menuItem = None
         self.menuCursor = pygame.font.SysFont('rubik', self.fontSize)
 
     def processInput(self):
@@ -57,16 +58,15 @@ class MenuGameMode(GameMode):
                         self.currentMenuItem += 1
                 elif event.key == pygame.K_RETURN:
                     #Gets the current menuitems action
-                    menuItem = self.menuItems[self.currentMenuItem]
-                    try:
-                        #Execute the current menuitems Action lambda function
-                        menuItem['action']() 
-                    except Error as er:
-                        print(er)
-
+                    self.menuItem = self.menuItems[self.currentMenuItem]
 
     def update(self):
-        pass
+        if self.menuItem is not None:
+            try:
+                #Execute the current menuitems Action lambda function
+                self.menuItem['action']() 
+            except Exception as ex:
+                print(ex)
 
     def render(self):   
         #Computes where the x-pos should be to center the font surface
@@ -111,16 +111,24 @@ class MenuGameMode(GameMode):
 class PlayGameMode(GameMode):
     def __init__(self, UI):
         self.ui = UI
- 
+
+        self.fontSize = 24
+        self.font = pygame.font.SysFont('rubik', self.fontSize)
+        self.message = "play Game mode"
 
     def processInput(self):
-        pass
+        #Event Handler
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == K_ESCAPE:
+                    self.ui.showMenu()
 
     def update(self):
         pass
         
     def render(self):
-        pass
+        surface = self.font.render(self.message, True, (255, 0, 0))
+        self.ui.window.blit(surface, (200, 200))
 
 class MessageGameMode(GameMode):
     def __init__(self, UI):
@@ -129,6 +137,8 @@ class MessageGameMode(GameMode):
         self.fontSize = 24
         self.font = pygame.font.SysFont('rubik', self.fontSize)
         self.message = "Message Game mode"
+
+        self.returnToMenu = False
      
     def processInput(self):
         #Event handling 
@@ -136,12 +146,13 @@ class MessageGameMode(GameMode):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE \
                 or event.key == pygame.K_RETURN:
-                    #Return to the menu
-                    self.ui.showMenu()
-
+                    #Store the value to be updated later
+                    self.returnToMenu = True
 
     def update(self):
-        pass
+        #Return to the menu
+        if self.returnToMenu == True:
+            self.ui.showMenu()
         
     def render(self):
         surface = self.font.render(self.message, True, (255, 0, 0))
