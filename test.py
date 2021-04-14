@@ -61,8 +61,14 @@ class UserInterface():
         pass
 
     def showLevel(self):
+        #Init gameplay
         if self.currentGameMode is None:
             self.currentGameMode = PlayGameMode(UI)
+            self.overlayGameMode = None
+            self.activeGameMode = 'Play'
+            
+        #Resume gameplay
+        else:
             self.overlayGameMode = None
             self.activeGameMode = 'Play'
 
