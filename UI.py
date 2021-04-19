@@ -7,7 +7,7 @@ try:
     import sys
 
     #My modules
-    from Entity import Entity, Enemy, Player
+    from Entity import Entity, Enemy, Player, FastEnemy
     from GameModes import MenuGameMode, PlayGameMode, MessageGameMode
 except ImportError as error:
     print("Couldn't load module.")
@@ -77,6 +77,11 @@ class UserInterface():
         self.currentGameMode = None 
         self.overlayGameMode = MenuGameMode(UI)
         self.activeGameMode = 'Overlay'
+        
+        pygame.mixer.music.set_volume(0.3)
+        #pygame.mixer.music.load("Assets\MenuMusic(FuckBees).mp3")
+        #pygame.mixer.music.play(loops=-1)
+        #print(pygame.mixer.music.get_volume())
 
         #Main game loop
         while self.running == True:
@@ -85,14 +90,16 @@ class UserInterface():
                 #Only process input from this game mode
                 self.overlayGameMode.processInput()
                 self.overlayGameMode.update()
-            #
+            
             elif self.currentGameMode is not None:
                 self.currentGameMode.processInput()
                 try:
                     self.currentGameMode.update()
-                except  error as er:
+                except Exception as ex:
                     print('Error updating the current game mode')
                     self.currentGameMode = None
+                    self.overlayGameMode = MenuGameMode(UI)
+                    self.activeGameMode = 'Overlay'
 
             #Render 
             #Draw a black screen

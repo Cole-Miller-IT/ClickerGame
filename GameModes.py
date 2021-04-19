@@ -4,7 +4,7 @@ from pygame.locals import *
 from pygame.math import Vector2
 
 #My modules
-from Entity import Entity, Enemy, Player
+from Entity import Entity, Enemy, Player, FastEnemy
 
 class GameMode():
     def processInput(self):
@@ -127,6 +127,7 @@ class PlayGameMode(GameMode):
         self.enemiesList = []
         self.enemiesListCopy = []
         self.maxEnemies = 4
+        self.fastEnemyCounter = 0
 
     def processInput(self):
         # Event Handler
@@ -140,23 +141,29 @@ class PlayGameMode(GameMode):
                     self.ui.showMenu()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 self.player1.processInput()  #Store the mouse click position
-                #print(self.player1.clickPos)
-                
             else:
                 pass
 
     def update(self):
         #If there are less than the max amount of enemies on screen, spawn one
         if len(self.enemiesList) < self.maxEnemies:
-            #Spawn a new enemy
-            self.enemiesList.append(Enemy(self.ui.cellSize, self.ui.worldSize))
+            #Spawn a new fast enemy
+            if self.fastEnemyCounter == 3:
+                self.enemiesList.append(FastEnemy(self.ui.cellSize, self.ui.worldSize))
+                self.fastEnemyCounter = 0
+
+            #Spawn a new enemy 
+            else:
+                self.enemiesList.append(Enemy(self.ui.cellSize, self.ui.worldSize))
+                self.fastEnemyCounter += 1
  
         #Update all enemies  
         self.enemiesListCopy = self.enemiesList  #Create a copy of the enemies list to prevent iteration errors, change later to a lambda function
         for enemy in self.enemiesListCopy:
             #If the enemy is out of the world bounds delete it, else move it
             if enemy.pos.x >= (self.ui.windowSize.x - self.ui.cellSize.x) or enemy.pos.y >= (self.ui.windowSize.y - self.ui.cellSize.y):
-                self.enemiesList.remove(enemy)  #Deletes the enemy
+                #Deletes the enemy
+                self.enemiesList.remove(enemy) 
 
             #Check if the player has clicked
             elif self.player1.clickPos != Vector2(0, 0):
@@ -164,9 +171,9 @@ class PlayGameMode(GameMode):
                 
                 #If a collision has occured update player and enemy
                 if collide:
-                    self.player1.update()
+                    self.player1.update(enemy.points)
                     self.enemiesList.remove(enemy)
-
+                    enemy.deathSound.play()
             else:
                 enemy.update()     #Moves the enemy
             
@@ -181,7 +188,7 @@ class PlayGameMode(GameMode):
 
         #Draw Enemies 
         for Enemy in self.enemiesList:
-            Enemy.render(self.ui.window, self.ui.red)
+            Enemy.render(self.ui.window)
 
         #Draw font/text
         self.fontSurface = self.font.render("FPS: " + str(int(self.ui.clock.get_fps())), True, self.ui.white)  #Convert clock from a float to a int to round off decimal points
