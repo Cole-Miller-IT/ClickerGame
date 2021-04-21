@@ -5,13 +5,13 @@ from pygame.math import Vector2
 
 #My modules
 from Entity import Entity, Enemy, Player, FastEnemy
-
+    
 class GameMode():
     def processInput(self):
         raise NotImplementedError()
     def update(self):
         raise NotImplementedError()
-    def render(self, window):
+    def render(self):
         raise NotImplementedError()
 
     def quitGame(self):
@@ -19,6 +19,7 @@ class GameMode():
 
 class MenuGameMode(GameMode):
     def __init__(self, UI):
+        super().__init__() #Inherit all the properties and methods of the parent class
         self.ui = UI
         
         #Font
@@ -36,6 +37,10 @@ class MenuGameMode(GameMode):
                 'action': lambda: self.ui.showLevel()
             },
             {
+                'menuItemName': 'Settings', 
+                'action': lambda: self.ui.showSettings()
+            },
+            {
                 'menuItemName': 'Quit', 
                 'action': lambda: self.ui.quitGame()
             }
@@ -44,6 +49,7 @@ class MenuGameMode(GameMode):
         self.currentMenuItem = 0
         self.menuItem = None
         self.menuCursor = pygame.font.SysFont('rubik', self.fontSize)
+        self.menuName = "Clicker Game"
 
     def processInput(self):
         #Event handling 
@@ -51,7 +57,6 @@ class MenuGameMode(GameMode):
             if event.type == pygame.QUIT:
                 #Exit the loop
                 self.ui.quitGame()
-
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
                     if self.currentMenuItem > 0:
@@ -68,6 +73,7 @@ class MenuGameMode(GameMode):
             try:
                 #Execute the current menuitems Action lambda function
                 self.menuItem['action']() 
+                self.menuItem = None
             except Exception as ex:
                 print(ex)
 
@@ -83,7 +89,7 @@ class MenuGameMode(GameMode):
         y = 50
         
         # Title
-        surface = self.font.render("Clicker Game", True, (200, 0, 0))
+        surface = self.font.render(self.menuName, True, (200, 0, 0))
         x = centerFontX(surface)
         self.ui.window.blit(surface, (x, y))
 
@@ -223,3 +229,85 @@ class MessageGameMode(GameMode):
     def render(self):
         surface = self.font.render(self.message, True, (255, 0, 0))
         self.ui.window.blit(surface, (200, 200))
+
+class SettingsGameMode(MenuGameMode):
+    #Overrides the parent class
+    def __init__(self, UI):
+        #Inherits the methods and attributes of the parent class
+        super().__init__(UI) 
+        
+        self.menuName = "Settings"
+
+        #List of all keybinds
+        self.menuItems = [
+            {	
+                'menuItemName': 'Move Up',
+                'hotkey': 'W', 
+                'action': lambda: print('up') #commandMoveUp(Command)
+            },
+            {
+                'menuItemName': 'Move Down',
+                'hotkey': 'S', 
+                'action': lambda: print('down') #commandMoveDown(Command)
+            },
+            {
+                'menuItemName': 'Move Left',
+                'hotkey': 'A', 
+                'action': lambda: print('left') #commandMoveLeft(Command)
+            },
+            {	
+                'menuItemName': 'Move Right',
+                'hotkey': 'D', 
+                'action': lambda: print('right') #commandMoveRight(Command)
+            }
+        ]
+
+    def render(self):   
+        #Computes where the x-pos should be to center the font surface
+        def centerFontX(surface):
+            offset = surface.get_width() // 2 #Take the length of the font divided by 2
+            x = (self.ui.window.get_width() // 2) - offset #Take half the window width and the offset to determine where to draw
+
+            return x
+
+        # Initial y
+        y = 50
+
+        #Amount of pixels to space out text from the edges of the window
+        padding = 20
+
+        # Title
+        surface = self.font.render(self.menuName, True, (200, 0, 0))
+        x = centerFontX(surface)
+        self.ui.window.blit(surface, (x, y))
+
+        y += (200 * surface.get_height()) // 100  #Change the y-pos to draw the menu items
+        
+        #Iterate through each menuItem
+        for item in self.menuItems:
+            #Draw each menuItem to the screen
+            surface = self.font.render(item['menuItemName'], True, (200, 0, 0))
+            x = padding
+            self.ui.window.blit(surface, (x, y))
+
+            #Draw each hotkey to the screen
+            surface = self.font.render(item['hotkey'], True, (200, 0, 0))
+            x = 500
+            #print(surface.get_width)
+            #print(surface.get_height)
+            #x = self.ui.windowSize - (surface.length() - padding)
+            self.ui.window.blit(surface, (x, y))
+            
+            #Cursor
+            #Get the current index number
+            index = self.menuItems.index(item)  
+            
+            #Render the cursor at the current MenuItem selected
+            if index == self.currentMenuItem:
+                surface = self.menuCursor.render("-->", True, (200, 0, 0))
+                cursorX = x - (surface.get_width() + 10) 
+                cursorY = y
+                self.ui.window.blit(surface, (cursorX, cursorY))
+
+            #Update y-pos so items are not overlaping
+            y += (120 * surface.get_height()) // 100

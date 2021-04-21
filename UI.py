@@ -8,7 +8,7 @@ try:
 
     #My modules
     from Entity import Entity, Enemy, Player, FastEnemy
-    from GameModes import MenuGameMode, PlayGameMode, MessageGameMode
+    from GameModes import MenuGameMode, PlayGameMode, MessageGameMode, SettingsGameMode
 except ImportError as error:
     print("Couldn't load module.")
     print(error)
@@ -69,7 +69,11 @@ class UserInterface():
         self.overlayGameMode = MenuGameMode(UI)
         self.activeGameMode = 'Overlay'
 
-    def quitGame(self):
+    def showSettings(self):
+        self.overlayGameMode = SettingsGameMode(UI)
+        self.activeGameMode = 'Overlay'
+
+    def quitGame(self): 
         self.running = False
 
     def run(self, UI):
