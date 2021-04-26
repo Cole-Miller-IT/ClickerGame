@@ -237,9 +237,12 @@ class SettingsGameMode(MenuGameMode):
         super().__init__(UI) 
         
         self.menuName = "Settings"
+        self.cursorIndex = 0
+        self.menuItemsDisplayed = 0
+        self.indexOffset = 0
 
         #List of all keybinds
-        self.menuItems = [
+        self.hotkeys = [
             {	
                 'menuItemName': 'Move Up',
                 'hotkey': 'W', 
@@ -259,8 +262,99 @@ class SettingsGameMode(MenuGameMode):
                 'menuItemName': 'Move Right',
                 'hotkey': 'D', 
                 'action': lambda: print('right') #commandMoveRight(Command)
-            }
+            },
+            {
+                'menuItemName': 'Jump',
+                'hotkey': 'Space', 
+                'action': lambda: print('space') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'DisplayFPS',
+                'hotkey': 'F1', 
+                'action': lambda: print('left') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'SpecialAbility',
+                'hotkey': 'E', 
+                'action': lambda: print('E') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'Grenade',
+                'hotkey': 'Q', 
+                'action': lambda: print('Q') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'Shoot',
+                'hotkey': 'Mouse1', 
+                'action': lambda: print('M1') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'Temp',
+                'hotkey': 'T', 
+                'action': lambda: print('T') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'Grenade',
+                'hotkey': 'Q', 
+                'action': lambda: print('Q') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'Grenade',
+                'hotkey': 'Q', 
+                'action': lambda: print('Q') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'Grenade',
+                'hotkey': 'Q', 
+                'action': lambda: print('Q') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'Grenade',
+                'hotkey': 'Q', 
+                'action': lambda: print('Q') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'Grenade',
+                'hotkey': 'Q', 
+                'action': lambda: print('Q') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'Grenade',
+                'hotkey': 'Q', 
+                'action': lambda: print('Q') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'Grenade',
+                'hotkey': 'Q', 
+                'action': lambda: print('Q') #commandMoveLeft(Command)
+            },
+            {
+                'menuItemName': 'end',
+                'hotkey': 'end', 
+                'action': lambda: print('Q') #commandMoveLeft(Command)
+            },
         ]
+    def processInput(self):
+        #Event handling 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                #Exit the loop
+                self.ui.quitGame()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:
+                    if self.currentMenuItem > 0:
+                        self.currentMenuItem -= 1
+                elif event.key == pygame.K_s:
+                    if self.currentMenuItem < (len(self.menuItems) - 1):
+                        if self.currentMenuItem > round(self.menuItemsDisplayed / 2):
+                            self.indexOffsetIncrease = True
+                           
+                        self.currentMenuItem += 1
+                elif event.key == pygame.K_RETURN:
+                    #Gets the current menuitems action
+                    self.menuItem = self.menuItems[self.currentMenuItem]
+                elif event.key == K_ESCAPE:
+                    self.ui.showMenu()
 
     def render(self):   
         #Computes where the x-pos should be to center the font surface
@@ -275,6 +369,7 @@ class SettingsGameMode(MenuGameMode):
 
         #Amount of pixels to space out text from the edges of the window
         padding = 20
+        paddingBottom = 50
 
         # Title
         surface = self.font.render(self.menuName, True, (200, 0, 0))
@@ -283,8 +378,42 @@ class SettingsGameMode(MenuGameMode):
 
         y += (200 * surface.get_height()) // 100  #Change the y-pos to draw the menu items
         
-        #Iterate through each menuItem
-        for item in self.menuItems:
+        #-----------------------------------------------------------------------
+        #Determines how many hotkeys to display
+        def itemsDisplayed(y):
+            menuItemsDisplayed = 0
+            for item in self.hotkeys:
+                menuItemsDisplayed += 1
+                surface = self.font.render(item['menuItemName'], True, (200, 0, 0))
+
+                #Update y-pos so items are not overlaping
+                y += (120 * surface.get_height()) // 100
+
+                if y >= self.ui.windowSize.y - paddingBottom:
+                    break
+            
+            return menuItemsDisplayed
+        
+        self.menuItemsDisplayed = itemsDisplayed(y)
+        #print(self.menuItemsDisplayed)
+
+        if self.indexOffsetIncrease == True:
+            self.indexOffset += 1
+
+        #
+        def createDisplayList():
+            displayList = []
+            for index in range(self.menuItemsDisplayed):
+                if index + self.indexOffset > self.menuItemsDisplayed:
+                    break
+                else:
+                    displayList.append(self.hotkeys[index + self.indexOffset])
+                
+            return displayList
+
+        self.menuItems = createDisplayList()
+        
+        for item in self.menuItems:         
             #Draw each menuItem to the screen
             surface = self.font.render(item['menuItemName'], True, (200, 0, 0))
             x = padding
@@ -293,15 +422,11 @@ class SettingsGameMode(MenuGameMode):
             #Draw each hotkey to the screen
             surface = self.font.render(item['hotkey'], True, (200, 0, 0))
             x = 500
-            #print(surface.get_width)
-            #print(surface.get_height)
-            #x = self.ui.windowSize - (surface.length() - padding)
             self.ui.window.blit(surface, (x, y))
             
             #Cursor
-            #Get the current index number
-            index = self.menuItems.index(item)  
-            
+            index = self.menuItems.index(item)
+
             #Render the cursor at the current MenuItem selected
             if index == self.currentMenuItem:
                 surface = self.menuCursor.render("-->", True, (200, 0, 0))
