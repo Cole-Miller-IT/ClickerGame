@@ -208,7 +208,7 @@ class MessageGameMode(GameMode):
 
         self.fontSize = 24
         self.font = pygame.font.SysFont('rubik', self.fontSize)
-        self.message = "Message Game mode"
+        self.message = "Click on the falling rectangles to destroy them and gain points."
 
         self.returnToMenu = False
      
@@ -228,7 +228,7 @@ class MessageGameMode(GameMode):
         
     def render(self):
         surface = self.font.render(self.message, True, (255, 0, 0))
-        self.ui.window.blit(surface, (200, 200))
+        self.ui.window.blit(surface, (10, 200))
 
 class SettingsGameMode(MenuGameMode):
     #Overrides the parent class

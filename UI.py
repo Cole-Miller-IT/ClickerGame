@@ -9,6 +9,9 @@ try:
     #My modules
     from Entity import Entity, Enemy, Player, FastEnemy
     from GameModes import MenuGameMode, PlayGameMode, MessageGameMode, SettingsGameMode
+    from GameState import GameState
+    from Commands import Command, MoveCommand
+
 except ImportError as error:
     print("Couldn't load module.")
     print(error)
@@ -20,9 +23,6 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 #Main game class
 class UserInterface():
     def __init__(self):
-        #Condition for main game loop
-        self.running = True
-
         #Colors
         self.black = (0, 0, 0)
         self.white = (255, 255, 255)
@@ -31,12 +31,15 @@ class UserInterface():
         self.blue = (0, 0, 255)
         self.gray = (200, 200, 200)
 
+        #Gamestate
+        self.gamestate = GameState()
+
         #Init Pygame
         pygame.init()
 
         #Window
-        self.worldSize = Vector2(10,10)
-        self.cellSize = Vector2(64,64)
+        self.worldSize = self.gamestate.worldSize
+        self.cellSize = self.gamestate.cellSize
         self.windowSize = self.worldSize.elementwise() * self.cellSize  # ie. A board of 10 x 10 tiles multiplied by the cellSize
         self.window = pygame.display.set_mode((int(self.windowSize.x), int(self.windowSize.y)))
         self.windowCaption = 'Clicker Game'
@@ -44,7 +47,7 @@ class UserInterface():
 
         #FPS
         self.clock = pygame.time.Clock()
-        self.FPS = 60
+        self.FPS = self.gamestate.FPS
 
     def debug(self):
         pass
@@ -74,7 +77,7 @@ class UserInterface():
         self.activeGameMode = 'Overlay'
 
     def quitGame(self): 
-        self.running = False
+        self.gamestate.running = False
 
     def run(self, UI):
         #Set default gamemode to the menu
@@ -88,7 +91,7 @@ class UserInterface():
         #print(pygame.mixer.music.get_volume())
 
         #Main game loop
-        while self.running == True:
+        while self.gamestate.running == True:
             #Determine what the current gamemode is and display an overlay if active
             if self.activeGameMode == 'Overlay':
                 #Only process input from this game mode

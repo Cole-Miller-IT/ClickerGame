@@ -2,10 +2,10 @@
 ''' 
 Project: Clicker game
 Author: Cole Miller
-Date: March, 2021 - April, 2021
+Date: March, 2021 - May, 2021
 
 Next Steps:
-#Additional enemy types
+-Additional enemy types COMPLETED
 -Add sounds and music
 -Add win and loss conditions
 -Add additional levels
