@@ -4,11 +4,9 @@ from pygame.math import Vector2
 
 class GameState():
     def __init__(self):
-        #Condition for main game loop
-        self.running = True
+        self.gameRunning = True
        
-        #FPS
-        self.FPS = 60
+        self.FPS = 30
 
         self.hotkeys = []
         self.commands = []
