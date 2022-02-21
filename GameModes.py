@@ -6,7 +6,7 @@ try:
     import sys
 
     #My modules
-    from Entity import Entity, Enemy, Player, FastEnemy
+    from EsperControl import *
     import Color
 
 except ImportError as error:
@@ -58,18 +58,19 @@ class MenuGameMode(GameMode):
         self.menuName = "Clicker Game"
 
     def processInput(self):
-        #Event handling 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                #Exit the loop
                 self.ui.quitGame()
+
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
                     if self.currentMenuItem > 0:
                         self.currentMenuItem -= 1
+
                 elif event.key == pygame.K_s:
                     if self.currentMenuItem < (len(self.menuItems) - 1):
                         self.currentMenuItem += 1
+                        
                 elif event.key == pygame.K_RETURN:
                     #Gets the current menuitems action
                     self.menuItem = self.menuItems[self.currentMenuItem]
@@ -127,86 +128,40 @@ class PlayGameMode(GameMode):
     def __init__(self, UI):
         self.ui = UI
 
-        #Font
         self.fontSize = 24
         self.font = pygame.font.SysFont('rubik', self.fontSize)
         self.message = "play Game mode"
 
-        #Player
-        self.player1 = Player(self.ui.cellSize, self.ui.worldSize)
-
-        #Enemies
-        self.enemiesList = []
-        self.enemiesListCopy = []
-        self.maxEnemies = 4
-        self.fastEnemyCounter = 0
+        self.EM = entityManager()
 
     def processInput(self):
         # Event Handler
         for event in pygame.event.get():
             # If the user has clicked on the 'X' box, close the game
             if event.type == pygame.QUIT:
-                self.running = False
+                self.gameRunning = False
             # If the user has pressed down on the keyboard, handle the input
             elif event.type == pygame.KEYDOWN:
                 if event.key == K_ESCAPE:
                     self.ui.showMenuOverlay()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                self.player1.processInput()  #Store the mouse click position
+                pass  #Store the mouse click position
             else:
                 pass
 
     def update(self):
-        #If there are less than the max amount of enemies on screen, spawn one
-        if len(self.enemiesList) < self.maxEnemies:
-            #Spawn a new fast enemy
-            if self.fastEnemyCounter == 3:
-                self.enemiesList.append(FastEnemy(self.ui.cellSize, self.ui.worldSize))
-                self.fastEnemyCounter = 0
-
-            #Spawn a new enemy 
-            else:
-                self.enemiesList.append(Enemy(self.ui.cellSize, self.ui.worldSize))
-                self.fastEnemyCounter += 1
- 
-        #Update all enemies  
-        self.enemiesListCopy = self.enemiesList  #Create a copy of the enemies list to prevent iteration errors, change later to a lambda function
-        for enemy in self.enemiesListCopy:
-            #If the enemy is out of the world bounds delete it, else move it
-            if enemy.pos.x >= (self.ui.windowSize.x - self.ui.cellSize.x) or enemy.pos.y >= (self.ui.windowSize.y - self.ui.cellSize.y):
-                #Deletes the enemy
-                self.enemiesList.remove(enemy) 
-
-            #Check if the player has clicked
-            elif self.player1.clickPos != Vector2(0, 0):
-                collide = enemy.rectangle.collidepoint(self.player1.clickPos)  #Determines if a collision has happened
-                
-                #If a collision has occured update player and enemy
-                if collide:
-                    self.player1.update(enemy.points)
-                    self.enemiesList.remove(enemy)
-                    enemy.deathSound.play()
-            else:
-                enemy.update()     #Moves the enemy
-            
-        self.player1.clickPos = Vector2(0, 0)  #Reset value
+        pass
         
     def render(self):
-        #surface = self.font.render(self.message, True, (255, 0, 0))
-        #self.ui.window.blit(surface, (200, 200))
-
-        # Reset background
         self.ui.window.fill(Color.black)
 
-        #Draw Enemies 
-        for Enemy in self.enemiesList:
-            Enemy.render(self.ui.window)
+        
 
         #Draw font/text
-        self.fontSurface = self.font.render("FPS: " + str(int(self.ui.clock.get_fps())), True, Color.white)  #Convert clock from a float to a int to round off decimal points
-        self.ui.window.blit(self.fontSurface, (20, 20))
-        self.fontSurface = self.font.render("Score: " + str(self.player1.score), True, Color.white)
-        self.ui.window.blit(self.fontSurface, (20, 40))
+        #self.fontSurface = self.font.render("FPS: " + str(int(self.ui.millisecondsSinceLastFrame)), True, Color.white)  #Convert clock from a float to a int to round off decimal points
+        #self.ui.window.blit(self.fontSurface, (20, 20))
+        #self.fontSurface = self.font.render("Score: " + str(self.player1.score), True, Color.white)
+        #self.ui.window.blit(self.fontSurface, (20, 40))
 
 class MessageGameMode(GameMode):
     def __init__(self, UI):

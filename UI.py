@@ -6,10 +6,8 @@ try:
     import sys
 
     #My modules
-    from Entity import Entity, Enemy, Player, FastEnemy
     from GameModes import MenuGameMode, PlayGameMode, MessageGameMode, SettingsGameMode
     from GameState import GameState
-    from Commands import Command, MoveCommand
     import Color
 
 except ImportError as error:
@@ -34,21 +32,27 @@ class UserInterface():
         self.windowCaption = 'Clicker Game'
         pygame.display.set_caption(self.windowCaption)
 
-        #FPS
         self.clock = pygame.time.Clock()
+        self.millisecondsSinceLastFrame = 0
         self.FPS = self.gamestate.FPS
 
+        pygame.mixer.music.set_volume(0.2)
+
+    def initializePlayGameMode(self):
+        self.currentGameMode = PlayGameMode(UI)
+        self.overlayGameMode = None
+        self.activeGameMode = 'Play'
+
+    def resumePlayGameMode(self):    
+        self.overlayGameMode = None
+        self.activeGameMode = 'Play'
+
     def showLevel(self):
-        #Init gameplay
         if self.currentGameMode is None:
-            self.currentGameMode = PlayGameMode(UI)
-            self.overlayGameMode = None
-            self.activeGameMode = 'Play'
+            self.initializePlayGameMode()
             
-        #Resume gameplay
         else:
-            self.overlayGameMode = None
-            self.activeGameMode = 'Play'
+            self.resumePlayGameMode()
 
     def showMessageOverlay(self):
         self.overlayGameMode = MessageGameMode(UI)
@@ -66,18 +70,17 @@ class UserInterface():
         self.gamestate.gameRunning = False
 
     def run(self, UI):
-        #Set default gamemode to the menu
+        defaultOverlayGamemode = MenuGameMode(UI)
+        self.overlayGameMode = defaultOverlayGamemode
         self.currentGameMode = None 
-        self.overlayGameMode = MenuGameMode(UI)
         self.activeGameMode = 'Overlay'
-        
-        pygame.mixer.music.set_volume(0.3)
 
-        #Main game loop
+        ###     Main game loop      ###
         while self.gamestate.gameRunning == True:
-            #Determine what the current gamemode is and display an overlay if active
+            self.clock.tick(self.FPS)
+            self.millisecondsSinceLastFrame = self.clock.get_time()
+
             if self.activeGameMode == 'Overlay':
-                #Only process input from this game mode
                 self.overlayGameMode.processInput()
                 self.overlayGameMode.update()
             
@@ -91,11 +94,9 @@ class UserInterface():
                     self.overlayGameMode = MenuGameMode(UI)
                     self.activeGameMode = 'Overlay'
 
-            #Render 
-            #Draw a black screen
+            #Render Section
             self.window.fill((0, 0, 0))
 
-            #Render the play game mode if set
             if self.currentGameMode is not None:
                 self.currentGameMode.render()
             
@@ -108,8 +109,6 @@ class UserInterface():
 
             #Draw graphics to the screen
             pygame.display.update()
-            self.clock.tick(self.FPS)
-
 
 UI = UserInterface()
 UI.run(UI)
