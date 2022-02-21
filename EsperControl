@@ -5,36 +5,24 @@
 ##https://docs.python.org/3/library/dataclasses.html#module-dataclasses
 ##https://github.com/benmoran56/esper/blob/master/esper/__init__.py
 ###########################################################################
-try: 
-    import pygame
-    from pygame.locals import *
-    from pygame.math import Vector2
-    import sys
-    from dataclasses import dataclass as component
-    import time
 
-    #My modules
-    import Color
+from dataclasses import dataclass as component
+import time
 
-except ImportError as error:
-    print("Couldn't load module.")
-    print(error)
-    sys.exit(2)
-
-class BaseSystem:
+class System:
     priority = 0    #0 is the lowest priority
 
-    def update(self, EM, *args, **kwargs):
+    def update(self, *args, **kwargs):
         raise NotImplementedError
 
-class testingSystem(BaseSystem):
-    def update(self, EM, UI):
+class testingSystem(System):
+    def update(self):
         x = 0
         while x != 100:
             x += 1
 
-class testingSystemTwo(BaseSystem):
-    def update(self, EM, UI):
+class testingSystemTwo(System):
+    def update(self):
         pass
 
 @component
@@ -74,7 +62,7 @@ class entityManager:
         self.dyingEntities.clear()
         
     def addSystem(self, system, priority):
-        assert issubclass(system.__class__, BaseSystem)
+        assert issubclass(system, System)
 
         gotSystem = self.getSystem(system)
         
@@ -115,7 +103,7 @@ class entityManager:
     def updateSystems(self, *args, **kwargs):
         for system in self.systems:
             try:
-                system.update(self, *args, **kwargs)
+                system.update(*args, **kwargs)
             except:
                 self.errorUpdatingSystem(system)
 
@@ -277,25 +265,23 @@ class entityManager:
         print(self.updateTimesinNanoSeconds)
 
 ########            Testing         ###############
-#EM = entityManager()
-#EM.testSuiteForEntityManager()
+EM = entityManager()
+EM.testSuiteForEntityManager()
 
 #Changing an Entity's Components variables
-#EnemyOne = EM.addEntity(testingComponentOne(), testingComponentTwo())
-#EM.getComponent(EnemyOne, testingComponentTwo()).y = 50
+EnemyOne = EM.addEntity(testingComponentOne(), testingComponentTwo())
+EM.getComponent(EnemyOne, testingComponentTwo()).y = 50
 
 #or
-#tempComponent = EM.getComponent(EnemyOne, testingComponentTwo())
-#tempComponent.y = 3
-#print(EM.entities)
+tempComponent = EM.getComponent(EnemyOne, testingComponentTwo())
+tempComponent.y = 3
 
 
 #New additions for the game 
 @component
 class Position():
-    def __init__(self, x=0.0, y=0.0):
-        self.x = x
-        self.y = y
+    x: int = 1
+    y: int = 1
 
 @component
 class Velocity():
@@ -304,11 +290,9 @@ class Velocity():
 
 @component
 class Renderable():
-    def __init__(self, height = 50, width = 50, color = (255,255,0)):
-        #image:
-        self.color = color  
-        self.height = height
-        self.width = width
+    #image:  
+    height: int = 50
+    width: int = 50
 
 @component
 class Health():
@@ -333,13 +317,13 @@ class Attack():
     atkRange: int = 2
     atkDamageType: str = "Normal"
 
-class combatSystem(BaseSystem):
+class combatSystem(System):
     def update(self):
         pass
         #for each entity that "attacked" this turn/frame and has the attack and health component
             #handle attack
 
-class movementSystem(BaseSystem):
+class movementSystem(System):
     def update(self):
         pass
         #for each entity with position and velocity
@@ -347,17 +331,8 @@ class movementSystem(BaseSystem):
             #check collisions
             #finalize position
 
-class renderSystem(BaseSystem):
-    def update(self, EM, UI):
-        self.ui = UI
-        #print(EM.components)
-        print(EM.components[Position])
-        for entity in EM.entities:
-            posComp = EM.getComponent(entity, Position())
-            rendComp = EM.getComponent(entity, Renderable())
-            if posComp != None and rendComp != None:
-                #print("Render Entity")
-                entityRect = pygame.Rect((posComp.x, posComp.y, rendComp.width, rendComp.height))
-                
-                #UI.window.blit(entityRect, UI.window)
-                self.ui.window.fill(Color.white)
+class renderSystem(System):
+    def update(self):
+        pass
+        #for each entity with position and renderable
+            #draw entity to the screen

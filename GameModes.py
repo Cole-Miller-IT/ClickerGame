@@ -133,6 +133,12 @@ class PlayGameMode(GameMode):
         self.message = "play Game mode"
 
         self.EM = entityManager()
+        self.EM.testSuiteForEntityManager()
+
+        self.EM.addSystem(renderSystem(), 0)
+
+        self.playerOne = self.EM.addEntity(Position(50, 50), Renderable())
+
 
     def processInput(self):
         # Event Handler
@@ -150,12 +156,11 @@ class PlayGameMode(GameMode):
                 pass
 
     def update(self):
-        pass
+        self.EM.updateSystems(self.ui)
         
     def render(self):
-        self.ui.window.fill(Color.black)
-
-        
+        #self.ui.window.fill(Color.black)
+        pass
 
         #Draw font/text
         #self.fontSurface = self.font.render("FPS: " + str(int(self.ui.millisecondsSinceLastFrame)), True, Color.white)  #Convert clock from a float to a int to round off decimal points
